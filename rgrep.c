@@ -39,7 +39,7 @@ int rgrep_matches(char *line, char *pattern) {
     //
 // Implement me
 //
-    static in pIndex = 0;
+    static int pIndex = 0;
     if (*pattern == '\0') {
         if (*line == '\n') {
             pattern -= pIndex * sizeof(char);
@@ -76,42 +76,42 @@ int rgrep_matches(char *line, char *pattern) {
                 }
             }
             pattern += sizeof(char);
-            pattern_depth++;
-        } if(question_modified(pattern)) {
-            if (*pattern == '.' && !escape_modified(pattern) && escape_modified(pattern + 3 * sizeof(char)) && *line == *(pattern + 3 * sizeof(char)) && *(line + sizeof(char)) != *(pattern + 3 * sizeof(char))) {
-                pattern_depth += 4;
+            pIndex++;
+        } if(question(pattern)) {
+            if (*pattern == '.' && !escape(pattern) && escape(pattern + 3 * sizeof(char)) && *line == *(pattern + 3 * sizeof(char)) && *(line + sizeof(char)) != *(pattern + 3 * sizeof(char))) {
+                pIndex += 4;
                 return rgrep_matches(line + sizeof(char), pattern + 4 * sizeof(char));
-            }  else if(*pattern == '.' && !escape_modified(pattern) && *line == *(pattern + 2 * sizeof(char))) {
-                    pattern_depth += 2;
+            }  else if(*pattern == '.' && !escape(pattern) && *line == *(pattern + 2 * sizeof(char))) {
+                    pIndex += 2;
                     return rgrep_matches(line, pattern + 2 * sizeof(char));
-                } else if(*pattern == '.' && !escape_modified(pattern) && *line != *(pattern + 2 * sizeof(char))) {
-                        pattern_depth += 2;
+                } else if(*pattern == '.' && !escape(pattern) && *line != *(pattern + 2 * sizeof(char))) {
+                        pIndex += 2;
                         return rgrep_matches(line + sizeof(char), pattern + 2 * sizeof(char));
                 } else if(*line == *pattern && *line == *(pattern + 2 * sizeof(char))) {
-                        pattern_depth += 2;
+                        pIndex += 2;
                         return rgrep_matches(line, pattern + 2 * sizeof(char));
-                } else if(*line == *pattern && next_char(line) == *(pattern + 2 * sizeof(char))){
+                } else if(*line == *pattern && previous(line) == *(pattern + 2 * sizeof(char))){
 
-                } else if(*line == *pattern && next_char(line) != *(pattern + 2 * sizeof(char)) && *line != *(pattern + 2 * sizeof(char))) {
+                } else if(*line == *pattern && previous(line) != *(pattern + 2 * sizeof(char)) && *line != *(pattern + 2 * sizeof(char))) {
 
                 } else if(*line != *pattern && *line != *(pattern + 2 * sizeof(char))) {
                     return 0;
-                } else if(*line == *pattern && *pattern == '.' && escape_modified(pattern)){
+                } else if(*line == *pattern && *pattern == '.' && escape(pattern)){
 
-                } else if(!(*pattern == '.' && !escape_modified(pattern)) || *line != *pattern) {
+                } else if(!(*pattern == '.' && !escape(pattern)) || *line != *pattern) {
                     line -= sizeof(char);
                 }
                 pattern += sizeof(char);
-                pattern_depth++;
+                pIndex++;
             }
             pattern += sizeof(char);
-            pattern_depth++;
-        } else if(pattern_depth != 0 && *(pattern - pattern_depth * sizeof(char)) != '\0') {
-                pattern -= pattern_depth * sizeof(char);
-                pattern_depth -= pattern_depth;
+            pIndex++;
+        } else if(pIndex != 0 && *(pattern - pIndex * sizeof(char)) != '\0') {
+                pattern -= pIndex * sizeof(char);
+                pIndex -= pIndex;
         }
         line += sizeof(char);
-        return rgrep_matches(line, patter);
+        return rgrep_matches(line, pattern);
 }
 
 int main(int argc, char **argv) {
@@ -165,13 +165,16 @@ int operator(char typeOfPattern) {
 }
 
 int plus(char *pattern) {
-    (next(pattern) == '+') ? return 1 : return 0;
+    int n = (next(pattern) == '+') ? 1 :  0;
+    return n;
 }
 
 int question(char *pattern) {
-    (next(pattern) == '\?') ? return 1 : return 0;
+    int n = (next(pattern) == '\?') ? 1 : 0;
+    return n;
 }
 
 int escape(char *pattern) {
-    (previous(pattern) == '\\') ? return 1 : return 0;
+    int n = (previous(pattern) == '\\') ? 1 : 0;
+    return n;
 }
