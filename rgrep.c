@@ -1,3 +1,5 @@
+//Authors: Adrian Darian, Irene Cen
+//Class: CSE 31: Computer Organization
 #include <stdio.h>
 #define MAXSIZE 4096
 
